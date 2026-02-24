@@ -27,6 +27,7 @@ mysql-connector-python = ">=8.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
+pytest-cov = "^6.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -36,3 +37,13 @@ build-backend = "poetry.core.masonry.api"
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["bd_exemplos"]
+branch = false
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "def __repr__", "raise NotImplementedError"]
+fail_under = 0
+show_missing = true
