@@ -1,15 +1,11 @@
 """
 Seed para base de dados Loja (fornecedores, produtos, clientes, encomendas, detalhes_venda).
 Usa o nome da base de dados definido em config.toml.
-Uso (a partir da raiz do repo): python scripts/seed_loja.py
+Uso (após pip install -e .): python -m bd_exemplos.scripts.seed_loja
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
 
 from dataclasses import dataclass
 from datetime import date, timedelta
@@ -17,10 +13,11 @@ from decimal import Decimal, ROUND_HALF_UP
 from random import Random
 from typing import Dict, Iterable, List, Sequence, Tuple
 
-import mysql.connector
-from mysql.connector.connection import MySQLConnection
-
 from bd_exemplos.config import load_config
+from bd_exemplos.db import connect_mysql
+
+# config.toml na raiz do repositório (3 níveis acima deste ficheiro)
+CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config.toml"
 
 
 # -----------------------------
@@ -293,14 +290,6 @@ def build_orders_and_lines(
 # -----------------------------
 # DB / Schema
 # -----------------------------
-def connect_mysql(*, host: str, port: int, user: str, password: str) -> MySQLConnection:
-    if not host:
-        raise ValueError("host must be non-empty")
-    if port <= 0:
-        raise ValueError("port must be > 0")
-    return mysql.connector.connect(host=host, port=port, user=user, password=password)
-
-
 def ddl_statements(database: str) -> List[str]:
     db = database.strip()
     if not db:
@@ -402,7 +391,7 @@ def exec_many(cur, sql: str, rows: Sequence[Tuple], batch: int) -> int:
 # Main
 # -----------------------------
 def main() -> None:
-    cfg = load_config(REPO_ROOT / "config.toml")
+    cfg = load_config(CONFIG_PATH)
     host = cfg.host
     port = cfg.port
     user = cfg.user

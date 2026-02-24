@@ -6,12 +6,14 @@ Bases de dados para teste (MySQL).
 
 ```
 BD_exemplos/
-├── config.toml.example # Modelo de configuração (copiar para config.toml)
-├── bd_exemplos/        # Código partilhado
-│   └── config.py       # Leitura da configuração
-├── scripts/            # Scripts de seed
-│   ├── seed_loja.py    # Loja: fornecedores, produtos, clientes, encomendas
-│   └── seed_biblioteca.py  # Biblioteca: autores, livros, leitores, empréstimos
+├── config.toml.example   # Modelo de configuração (copiar para config.toml)
+├── pyproject.toml       # Projeto Poetry (poetry install)
+├── bd_exemplos/          # Pacote Python
+│   ├── config.py        # Leitura da configuração
+│   ├── db.py            # Conexão MySQL partilhada
+│   └── scripts/         # Scripts de seed (executar com python -m)
+│       ├── seed_loja.py      # Loja: fornecedores, produtos, clientes, encomendas
+│       └── seed_biblioteca.py # Biblioteca: autores, livros, leitores, empréstimos
 ├── requirements.txt
 ├── README.md
 └── LICENSE
@@ -36,36 +38,35 @@ Shell
 
 ## Como executar
 
-A partir da **raiz do repositório**:
+Se ainda não tiveres o **Poetry** instalado:
 
 ```bash
-# Garantir que o módulo bd_exemplos é encontrado
-export PYTHONPATH=.
-
-# Seed Loja (usa o database definido em config.toml)
-python scripts/seed_loja.py
-
-# Seed Biblioteca (usa o database definido em config.toml)
-python scripts/seed_biblioteca.py
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-Ou com `python3`:
+Reinicia o terminal (ou faz `source ~/.zshrc`) para que o comando `poetry` fique disponível.
 
-```bash
-PYTHONPATH=. python3 scripts/seed_loja.py
-PYTHONPATH=. python3 scripts/seed_biblioteca.py
-```
+1. **Instalar dependências** (na raiz do repositório):
+
+   ```bash
+   poetry install
+   ```
+
+2. **Executar os seeds** (o `config.toml` deve estar na raiz do repo):
+
+   ```bash
+   # Seed Loja (usa o database definido em config.toml)
+   poetry run python -m bd_exemplos.scripts.seed_loja
+
+   # Seed Biblioteca
+   poetry run python -m bd_exemplos.scripts.seed_biblioteca
+   ```
+
+Com `poetry install`, o Poetry cria o ambiente virtual e instala o pacote; não é preciso `PYTHONPATH`.
 
 ## Dependências
 
-- Python 3.10+
-- `toml`
-- `mysql-connector-python`
+- Python ^3.9
+- Geridas pelo Poetry em `pyproject.toml`: `toml`, `mysql-connector-python`
 
-Instalação:
-
-```bash
-pip install toml mysql-connector-python
-```
-
-(Opcional: criar um ambiente virtual antes.)
+Instalação: `poetry install`. Para gerar `requirements.txt` (ex.: CI/Docker): `poetry export -f requirements.txt --without-hashes`.

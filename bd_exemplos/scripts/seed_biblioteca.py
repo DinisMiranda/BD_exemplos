@@ -1,24 +1,21 @@
 """
 Seed para base de dados Biblioteca (autores, livros, leitores, empréstimos).
-Cria e popula BD_TESTE2. Para outra base, alterar a variável database em main() ou em config.toml.
-Uso (a partir da raiz do repo): python scripts/seed_biblioteca.py
+Usa o nome da base de dados definido em config.toml.
+Uso (após pip install -e .): python -m bd_exemplos.scripts.seed_biblioteca
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
 
 from dataclasses import dataclass
 from datetime import date, timedelta
 from random import Random
 
-import mysql.connector
-from mysql.connector.connection import MySQLConnection
-
 from bd_exemplos.config import load_config
+from bd_exemplos.db import connect_mysql
+
+# config.toml na raiz do repositório (3 níveis acima deste ficheiro)
+CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config.toml"
 
 
 # -----------------------------
@@ -136,12 +133,8 @@ def build_emprestimos(rng: Random) -> list[Emprestimo]:
 
 
 # -----------------------------
-# Conexão e DDL
+# DDL
 # -----------------------------
-def connect_mysql(*, host: str, port: int, user: str, password: str) -> MySQLConnection:
-    return mysql.connector.connect(host=host, port=port, user=user, password=password)
-
-
 def ddl_biblioteca(database: str) -> list[str]:
     db = database.strip()
     if not db:
@@ -215,8 +208,7 @@ def ddl_biblioteca(database: str) -> list[str]:
 
 
 def main() -> None:
-    cfg = load_config(REPO_ROOT / "config.toml")
-    # Base de dados da biblioteca (pode usar cfg.database se quiser o mesmo que config.toml)
+    cfg = load_config(CONFIG_PATH)
     database = cfg.database
     rng = Random(42)
 
