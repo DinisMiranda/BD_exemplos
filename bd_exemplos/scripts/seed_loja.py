@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from random import Random
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Iterable, Sequence
 
 from bd_exemplos.config import load_config
 from bd_exemplos.db import connect_mysql
@@ -74,7 +74,7 @@ def quant2(x: Decimal) -> Decimal:
     return x.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
-def chunked(seq: Sequence[Tuple], size: int) -> Iterable[List[Tuple]]:
+def chunked(seq: Sequence[tuple], size: int) -> Iterable[list[tuple]]:
     if size <= 0:
         raise ValueError("chunk size must be > 0")
     for i in range(0, len(seq), size):
@@ -92,15 +92,15 @@ def daterange_days(start: date, end_exclusive: date, rng: Random) -> date:
 # -----------------------------
 # Dataset builder
 # -----------------------------
-def build_static_entities() -> Tuple[List[Supplier], List[Product], List[Client]]:
+def build_static_entities() -> tuple[list[Supplier], list[Product], list[Client]]:
     # Adidas NOT included on purpose (query h)
-    suppliers: List[Supplier] = [
+    suppliers: list[Supplier] = [
         Supplier(1, "Nike", "sales@nike.pt"),
         Supplier(2, "LuxuryCo", "sales@luxuryco.pt"),
         Supplier(3, "Casa do Norte", "contacto@casadonorte.pt"),
     ]
 
-    products: List[Product] = [
+    products: list[Product] = [
         # Nike
         Product(1, "Nike Air Max Pro", money("600.00"), 1),   # critical for query c
         Product(2, "Nike Running Jacket", money("550.00"), 1),
@@ -133,7 +133,7 @@ def build_static_entities() -> Tuple[List[Supplier], List[Product], List[Client]
         Product(23, "Queijo Especial", money("14.90"), 3),
     ]
 
-    clients: List[Client] = [
+    clients: list[Client] = [
         Client("ana.silva@email.pt", "Ana Silva", "Rua das Flores 10", "Porto", "4000-100"),
         Client("joao.pereira@email.pt", "João Pereira", "Av. da República 50", "Gaia", "4400-200"),
         Client("rita.costa@email.pt", "Rita Costa", "Travessa do Sol 3", "Braga", "4700-300"),
@@ -175,21 +175,21 @@ def compute_practiced_price(base: Decimal, rng: Random) -> Decimal:
 def build_orders_and_lines(
     *,
     rng: Random,
-    products: List[Product],
-    clients: List[Client],
+    products: list[Product],
+    clients: list[Client],
     total_orders: int,
-) -> Tuple[List[Order], List[OrderLine]]:
+) -> tuple[list[Order], list[OrderLine]]:
     if total_orders < 50:
         raise ValueError("total_orders should be reasonably large (>=50)")
 
-    base_by_id: Dict[int, Decimal] = {p.id_produto: p.preco_base for p in products}
+    base_by_id: dict[int, Decimal] = {p.id_produto: p.preco_base for p in products}
 
     never_sold_ids = {21, 22, 23}
     all_product_ids = [p.id_produto for p in products]
     sellable_ids = [pid for pid in all_product_ids if pid not in never_sold_ids]
 
-    orders: List[Order] = []
-    lines: List[OrderLine] = []
+    orders: list[Order] = []
+    lines: list[OrderLine] = []
 
     def add_line(num: str, pid: int, qty: int) -> None:
         if pid in never_sold_ids:
@@ -290,7 +290,7 @@ def build_orders_and_lines(
 # -----------------------------
 # DB / Schema
 # -----------------------------
-def ddl_statements(database: str) -> List[str]:
+def ddl_statements(database: str) -> list[str]:
     db = database.strip()
     if not db:
         raise ValueError("database must be non-empty")
@@ -377,7 +377,7 @@ def ddl_statements(database: str) -> List[str]:
     ]
 
 
-def exec_many(cur, sql: str, rows: Sequence[Tuple], batch: int) -> int:
+def exec_many(cur, sql: str, rows: Sequence[tuple], batch: int) -> int:
     if not rows:
         return 0
     total = 0
