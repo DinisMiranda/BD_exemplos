@@ -1,4 +1,4 @@
-"""Conexão MySQL partilhada pelos scripts de seed."""
+"""Shared MySQL connection used by seed scripts."""
 from __future__ import annotations
 
 import mysql.connector

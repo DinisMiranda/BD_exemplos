@@ -1,83 +1,79 @@
 # BD_exemplos
 
-Bases de dados para teste (MySQL).
+Sample databases for testing (MySQL).
 
-## Estrutura do repositório
+## Repository structure
 
 ```
 BD_exemplos/
-├── config.toml.example   # Modelo de configuração (copiar para config.toml)
-├── pyproject.toml       # Projeto Poetry (poetry install)
-├── bd_exemplos/          # Pacote Python
-│   ├── config.py        # Leitura da configuração
-│   ├── db.py            # Conexão MySQL partilhada
-│   └── scripts/         # Scripts de seed (executar com python -m)
-│       ├── seed_loja.py      # Loja: fornecedores, produtos, clientes, encomendas
-│       └── seed_biblioteca.py # Biblioteca: autores, livros, leitores, empréstimos
-├── tests/              # Testes (pytest)
-│   ├── test_config.py  # load_config
-│   └── test_builders.py # build_static_entities, build_autores, etc.
+├── config.toml.example   # Config template (copy to config.toml)
+├── pyproject.toml        # Poetry project (poetry install)
+├── bd_exemplos/          # Python package
+│   ├── config.py         # Config loader
+│   ├── db.py             # Shared MySQL connection
+│   └── scripts/          # Seed scripts (run with python -m)
+│       ├── seed_loja.py       # Shop: suppliers, products, clients, orders
+│       └── seed_biblioteca.py # Library: authors, books, readers, loans
+├── tests/                # Tests (pytest)
+│   ├── test_config.py    # load_config
+│   └── test_builders.py  # build_static_entities, build_autores, etc.
 ├── requirements.txt
 ├── README.md
 └── LICENSE
 ```
 
-## Configuração
+## Configuration
 
-O ficheiro `config.toml` (com a password do MySQL) **não está no repositório** por segurança. Usa o modelo:
+The `config.toml` file (with your MySQL password) **is not in the repository** for security. Use the template:
 
-1. **Copiar o exemplo** para criar o teu ficheiro de configuração:
+1. **Copy the example** to create your config file:
    ```bash
    cp config.toml.example config.toml
    ```
-2. **Editar `config.toml`** e preencher:
-   - `password` — password do MySQL (ex.: MySQL Workbench). Pode ficar vazia se o teu servidor local não usar password.
-   - `database` — nome da base de dados (podes usar, por exemplo, `BD_TESTE` ou `BD_TESTE2`).
-   - Opcionalmente ajustar `host`, `port`, `user`.
-</think>
-Verificando se o config carrega com password vazia:
-<｜tool▁calls▁begin｜><｜tool▁call▁begin｜>
-Shell
+2. **Edit `config.toml`** and set:
+   - `password` — your MySQL password (e.g. MySQL Workbench). Can be empty if your local server has no password.
+   - `database` — database name (e.g. `BD_TESTE` or `BD_TESTE2`).
+   - Optionally adjust `host`, `port`, `user`.
 
-## Como executar
+## How to run
 
-Se ainda não tiveres o **Poetry** instalado:
+If you don't have **Poetry** installed yet:
 
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-Reinicia o terminal (ou faz `source ~/.zshrc`) para que o comando `poetry` fique disponível.
+Restart your terminal (or run `source ~/.zshrc`) so the `poetry` command is available.
 
-1. **Instalar dependências** (na raiz do repositório):
+1. **Install dependencies** (from the repository root):
 
    ```bash
    poetry install
    ```
 
-2. **Executar os seeds** (o `config.toml` deve estar na raiz do repo):
+2. **Run the seeds** (`config.toml` must be in the repo root):
 
    ```bash
-   # Seed Loja (usa o database definido em config.toml)
+   # Shop seed (uses database from config.toml)
    poetry run python -m bd_exemplos.scripts.seed_loja
 
-   # Seed Biblioteca
+   # Library seed
    poetry run python -m bd_exemplos.scripts.seed_biblioteca
    ```
 
-Com `poetry install`, o Poetry cria o ambiente virtual e instala o pacote; não é preciso `PYTHONPATH`.
+With `poetry install`, Poetry creates the virtual environment and installs the package; no need for `PYTHONPATH`.
 
-## Testes
+## Tests
 
-Testes mínimos com pytest (config e builders de dados):
+Minimal tests with pytest (config and data builders):
 
 ```bash
 poetry run pytest tests/ -v
 ```
 
-## Dependências
+## Dependencies
 
 - Python ^3.9
-- Geridas pelo Poetry em `pyproject.toml`: `toml`, `mysql-connector-python`
+- Managed in `pyproject.toml`: `toml`, `mysql-connector-python`
 
-Instalação: `poetry install`. Para gerar `requirements.txt` (ex.: CI/Docker): `poetry export -f requirements.txt --without-hashes`.
+Install: `poetry install`. To generate `requirements.txt` (e.g. for CI/Docker): `poetry export -f requirements.txt --without-hashes`.

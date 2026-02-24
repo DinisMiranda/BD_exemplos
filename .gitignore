@@ -12,7 +12,7 @@ env/
 dist/
 build/
 
-# Config com credenciais — não versionar
+# Config with credentials — do not version
 config.toml
 config.local.toml
 *.local.toml

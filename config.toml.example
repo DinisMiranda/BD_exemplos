@@ -1,5 +1,5 @@
-# Copiar para config.toml e preencher (sobretudo password).
-# O ficheiro config.toml não é versionado (está no .gitignore).
+# Copy to config.toml and fill in (especially password).
+# config.toml is not versioned (listed in .gitignore).
 
 [mysql]
 host = "127.0.0.1"

@@ -1,1 +1,1 @@
-# Scripts de seed (executar com python -m bd_exemplos.scripts.seed_loja etc.)
+# Seed scripts (run with python -m bd_exemplos.scripts.seed_loja etc.)

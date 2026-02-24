@@ -1,1 +1,1 @@
-# BD_exemplos — bases de dados para teste
+# BD_exemplos — sample databases for testing

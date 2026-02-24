@@ -1,4 +1,4 @@
-"""Testes para bd_exemplos.config.load_config."""
+"""Tests for bd_exemplos.config.load_config."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -9,7 +9,7 @@ from bd_exemplos.config import MySQLConfig, load_config
 
 
 def test_load_config_valid_toml(tmp_path: Path) -> None:
-    """load_config devolve MySQLConfig quando o TOML é válido."""
+    """load_config returns MySQLConfig when TOML is valid."""
     toml_file = tmp_path / "config.toml"
     toml_file.write_text(
         """
@@ -32,7 +32,7 @@ database = "BD_TESTE"
 
 
 def test_load_config_accepts_empty_password(tmp_path: Path) -> None:
-    """load_config aceita password vazia (desenvolvimento local)."""
+    """load_config accepts empty password (local development)."""
     toml_file = tmp_path / "config.toml"
     toml_file.write_text(
         """
@@ -50,7 +50,7 @@ database = "BD"
 
 
 def test_load_config_missing_password_uses_default(tmp_path: Path) -> None:
-    """Quando password está ausente no TOML, usa string vazia."""
+    """When password is missing in TOML, empty string is used."""
     toml_file = tmp_path / "config.toml"
     toml_file.write_text(
         """
@@ -67,13 +67,13 @@ database = "BD"
 
 
 def test_load_config_file_not_found() -> None:
-    """Ficheiro inexistente levanta FileNotFoundError."""
+    """Missing file raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError, match="Config file not found"):
-        load_config(Path("/nao/existe/config.toml"))
+        load_config(Path("/does/not/exist/config.toml"))
 
 
 def test_load_config_missing_mysql_section(tmp_path: Path) -> None:
-    """TOML sem secção [mysql] levanta ValueError."""
+    """TOML without [mysql] section raises ValueError."""
     toml_file = tmp_path / "config.toml"
     toml_file.write_text(
         """
@@ -87,7 +87,7 @@ key = "value"
 
 
 def test_load_config_port_must_be_int(tmp_path: Path) -> None:
-    """port deve ser inteiro positivo."""
+    """port must be a positive integer."""
     toml_file = tmp_path / "config.toml"
     toml_file.write_text(
         """
@@ -105,7 +105,7 @@ database = "BD"
 
 
 def test_load_config_port_must_be_positive(tmp_path: Path) -> None:
-    """port deve ser > 0."""
+    """port must be > 0."""
     toml_file = tmp_path / "config.toml"
     toml_file.write_text(
         """
@@ -123,7 +123,7 @@ database = "BD"
 
 
 def test_load_config_required_str_empty_fails(tmp_path: Path) -> None:
-    """Campos obrigatórios (host, user, database) não podem ser vazios."""
+    """Required fields (host, user, database) cannot be empty."""
     toml_file = tmp_path / "config.toml"
     toml_file.write_text(
         """

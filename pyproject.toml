@@ -1,8 +1,23 @@
 [tool.poetry]
 name = "bd-exemplos"
 version = "0.1.0"
-description = "Bases de dados para teste (MySQL)"
+description = "Sample databases for testing (MySQL): seeds for Shop and Library domains."
 readme = "README.md"
+license = "MIT"
+authors = ["Dinis Miranda"]
+keywords = ["mysql", "database", "seed", "fixtures", "testing"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Database",
+]
 packages = [{ include = "bd_exemplos" }]
 
 [tool.poetry.dependencies]
@@ -16,3 +31,8 @@ pytest = "^8.0"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"

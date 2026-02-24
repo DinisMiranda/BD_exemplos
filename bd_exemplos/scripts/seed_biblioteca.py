@@ -1,7 +1,7 @@
 """
-Seed para base de dados Biblioteca (autores, livros, leitores, empréstimos).
-Usa o nome da base de dados definido em config.toml.
-Uso (após pip install -e .): python -m bd_exemplos.scripts.seed_biblioteca
+Library database seed (authors, books, readers, loans).
+Uses the database name defined in config.toml.
+Usage (after poetry install): python -m bd_exemplos.scripts.seed_biblioteca
 """
 from __future__ import annotations
 
@@ -14,12 +14,12 @@ from random import Random
 from bd_exemplos.config import load_config
 from bd_exemplos.db import connect_mysql
 
-# config.toml na raiz do repositório (3 níveis acima deste ficheiro)
+# config.toml at repository root (3 levels up from this file)
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config.toml"
 
 
 # -----------------------------
-# Modelos
+# Models
 # -----------------------------
 @dataclass(frozen=True)
 class Autor:
@@ -55,7 +55,7 @@ class Emprestimo:
 
 
 # -----------------------------
-# Dados estáticos
+# Static data
 # -----------------------------
 def build_autores() -> list[Autor]:
     return [
@@ -93,10 +93,10 @@ def build_leitores() -> list[Leitor]:
 
 
 def build_emprestimos(rng: Random) -> list[Emprestimo]:
-    """Gera empréstimos de exemplo (alguns já devolvidos, outros em curso)."""
+    """Build sample loans (some returned, some still out)."""
     emprestimos: list[Emprestimo] = []
     pid = 1
-    # Empréstimos passados (devolvidos)
+    # Past loans (returned)
     for (id_livro, id_leitor, emp, dev) in [
         (1, 1, date(2024, 1, 5), date(2024, 1, 25)),
         (3, 2, date(2024, 2, 10), date(2024, 3, 10)),
@@ -111,7 +111,7 @@ def build_emprestimos(rng: Random) -> list[Emprestimo]:
     ]:
         emprestimos.append(Emprestimo(pid, id_livro, id_leitor, emp, dev))
         pid += 1
-    # Empréstimos em curso (sem data_devolucao)
+    # Current loans (no return date yet)
     for (id_livro, id_leitor, emp) in [
         (1, 3, date(2025, 1, 6)),
         (4, 5, date(2025, 1, 15)),
@@ -119,7 +119,7 @@ def build_emprestimos(rng: Random) -> list[Emprestimo]:
     ]:
         emprestimos.append(Emprestimo(pid, id_livro, id_leitor, emp, None))
         pid += 1
-    # Mais alguns aleatórios
+    # A few more random ones
     for _ in range(12):
         id_livro = rng.randint(1, 10)
         id_leitor = rng.randint(1, 5)
@@ -230,7 +230,7 @@ def main() -> None:
         for stmt in ddl_biblioteca(database):
             cur.execute(stmt)
 
-        # Limpeza (ordem por FKs)
+        # Clear tables (respect FK order)
         cur.execute(f"DELETE FROM {database}.emprestimos")
         cur.execute(f"DELETE FROM {database}.livros")
         cur.execute(f"DELETE FROM {database}.leitores")
@@ -254,11 +254,11 @@ def main() -> None:
         )
 
         conn.commit()
-        print("DONE — Base de dados criada:", database)
-        print(f"  autores:    {len(autores)}")
-        print(f"  livros:     {len(livros)}")
-        print(f"  leitores:   {len(leitores)}")
-        print(f"  emprestimos: {len(emprestimos)}")
+        print("DONE — Database created:", database)
+        print(f"  authors:  {len(autores)}")
+        print(f"  books:    {len(livros)}")
+        print(f"  readers:  {len(leitores)}")
+        print(f"  loans:    {len(emprestimos)}")
     except Exception:
         conn.rollback()
         raise

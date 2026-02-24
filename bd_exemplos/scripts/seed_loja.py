@@ -1,7 +1,7 @@
 """
-Seed para base de dados Loja (fornecedores, produtos, clientes, encomendas, detalhes_venda).
-Usa o nome da base de dados definido em config.toml.
-Uso (após pip install -e .): python -m bd_exemplos.scripts.seed_loja
+Shop database seed (suppliers, products, clients, orders, order details).
+Uses the database name defined in config.toml.
+Usage (after poetry install): python -m bd_exemplos.scripts.seed_loja
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from typing import Iterable, Sequence
 from bd_exemplos.config import load_config
 from bd_exemplos.db import connect_mysql
 
-# config.toml na raiz do repositório (3 níveis acima deste ficheiro)
+# config.toml at repository root (3 levels up from this file)
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config.toml"
 
 
@@ -60,7 +60,7 @@ class OrderLine:
     id_produto: int
     tamanho: str
     quantidade: int
-    preco_praticado: Decimal  # preço unitário praticado
+    preco_praticado: Decimal  # applied unit price
 
 
 # -----------------------------
@@ -421,7 +421,7 @@ def main() -> None:
         for stmt in ddl_statements(database):
             cur.execute(stmt)
 
-        # limpeza (ordem por FKs)
+        # Clear tables (respect FK order)
         cur.execute(f"DELETE FROM {database}.detalhes_venda")
         cur.execute(f"DELETE FROM {database}.encomendas")
         cur.execute(f"DELETE FROM {database}.produtos")
@@ -462,11 +462,11 @@ def main() -> None:
         conn.commit()
 
         print("DONE")
-        print(f"Inserted fornecedores: {n_sup}")
-        print(f"Inserted produtos:     {n_prod}")
-        print(f"Inserted clientes:     {n_cli}")
-        print(f"Inserted encomendas:   {n_ord}")
-        print(f"Inserted linhas:       {n_lines}")
+        print(f"Inserted suppliers:  {n_sup}")
+        print(f"Inserted products:   {n_prod}")
+        print(f"Inserted clients:   {n_cli}")
+        print(f"Inserted orders:    {n_ord}")
+        print(f"Inserted order lines: {n_lines}")
 
     except Exception:
         conn.rollback()
