@@ -138,3 +138,44 @@ database = "BD"
     )
     with pytest.raises(ValueError, match="host"):
         load_config(toml_file)
+
+
+def test_load_config_mysql_section_not_dict(tmp_path: Path) -> None:
+    """When [mysql] is not a table (e.g. scalar), ValueError is raised."""
+    toml_file = tmp_path / "config.toml"
+    toml_file.write_text('mysql = "not a table"', encoding="utf-8")
+    with pytest.raises(ValueError, match="Missing \\[mysql\\] section"):
+        load_config(toml_file)
+
+
+def test_load_config_password_not_string_fails(tmp_path: Path) -> None:
+    """When password is present but not a string (e.g. int), ValueError is raised."""
+    toml_file = tmp_path / "config.toml"
+    toml_file.write_text(
+        """
+[mysql]
+host = "localhost"
+port = 3306
+user = "root"
+password = 1
+database = "BD"
+""",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="Invalid 'password'"):
+        load_config(toml_file)
+
+
+def test_load_config_root_not_dict(tmp_path: Path) -> None:
+    """When TOML root is not a dict (edge case), ValueError is raised."""
+    from unittest.mock import patch
+
+    toml_file = tmp_path / "config.toml"
+    toml_file.write_text("key = true", encoding="utf-8")
+
+    def fake_loads(_s: str):
+        return []  # not a dict
+
+    with patch("bd_exemplos.config.toml.loads", side_effect=fake_loads):
+        with pytest.raises(ValueError, match="Config root must be a TOML table"):
+            load_config(toml_file)
