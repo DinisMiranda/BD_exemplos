@@ -1,16 +1,26 @@
+"""
+Seed para base de dados Loja (fornecedores, produtos, clientes, encomendas, detalhes_venda).
+Usa o nome da base de dados definido em config.toml.
+Uso (a partir da raiz do repo): python scripts/seed_loja.py
+"""
 from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT))
 
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal, ROUND_HALF_UP
-from pathlib import Path
 from random import Random
 from typing import Dict, Iterable, List, Sequence, Tuple
 
 import mysql.connector
 from mysql.connector.connection import MySQLConnection
 
-from config import load_config
+from bd_exemplos.config import load_config
 
 
 # -----------------------------
@@ -392,7 +402,7 @@ def exec_many(cur, sql: str, rows: Sequence[Tuple], batch: int) -> int:
 # Main
 # -----------------------------
 def main() -> None:
-    cfg = load_config(Path("config.toml"))
+    cfg = load_config(REPO_ROOT / "config.toml")
     host = cfg.host
     port = cfg.port
     user = cfg.user

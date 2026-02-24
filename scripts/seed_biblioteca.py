@@ -1,20 +1,24 @@
 """
-Seed para uma base de dados alternativa (BD_TESTE2) — domínio Biblioteca.
-Cria e popula: autores, livros, leitores, emprestimos.
-Uso: python teste2_seed.py
-Depois podes importar e testar contra BD_TESTE2 (ex.: config com database = "BD_TESTE2").
+Seed para base de dados Biblioteca (autores, livros, leitores, empréstimos).
+Cria e popula BD_TESTE2. Para outra base, alterar a variável database em main() ou em config.toml.
+Uso (a partir da raiz do repo): python scripts/seed_biblioteca.py
 """
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT))
+
 from dataclasses import dataclass
 from datetime import date, timedelta
-from pathlib import Path
 from random import Random
 
 import mysql.connector
 from mysql.connector.connection import MySQLConnection
 
-from config import load_config
+from bd_exemplos.config import load_config
 
 
 # -----------------------------
@@ -211,9 +215,9 @@ def ddl_biblioteca(database: str) -> list[str]:
 
 
 def main() -> None:
-    cfg = load_config(Path("config.toml"))
-    # Base de dados diferente da BD_TESTE
-    database = "BD_TESTE2"
+    cfg = load_config(REPO_ROOT / "config.toml")
+    # Base de dados da biblioteca (pode usar cfg.database se quiser o mesmo que config.toml)
+    database = cfg.database
     rng = Random(42)
 
     autores = build_autores()
@@ -258,7 +262,7 @@ def main() -> None:
         )
 
         conn.commit()
-        print("DONE — Base de dados alternativa criada: BD_TESTE2")
+        print("DONE — Base de dados criada:", database)
         print(f"  autores:    {len(autores)}")
         print(f"  livros:     {len(livros)}")
         print(f"  leitores:   {len(leitores)}")
