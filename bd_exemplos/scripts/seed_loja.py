@@ -1,7 +1,17 @@
-"""
-Shop database seed (suppliers, products, clients, orders, order details).
-Uses the database name defined in config.toml.
-Usage (after poetry install): python -m bd_exemplos.scripts.seed_loja
+"""Shop (e-commerce) database seed script.
+
+Populates a MySQL database with deterministic and random data for the domain:
+suppliers (fornecedores), products (produtos), clients (clientes), orders
+(encomendas), and order line items (detalhes_venda). The database name and
+connection settings are read from ``config.toml`` at the repository root.
+
+Usage:
+    From the repo root after ``poetry install``::
+
+        python -m bd_exemplos.scripts.seed_loja
+
+    The script creates the database and tables if they do not exist, clears
+    existing data, then inserts the seed data and prints row counts.
 """
 from __future__ import annotations
 
@@ -25,6 +35,14 @@ CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config.toml"
 # -----------------------------
 @dataclass(frozen=True)
 class Supplier:
+    """A supplier (fornecedor) entity.
+
+    Attributes:
+        id_fornecedor: Primary key.
+        nome: Supplier name.
+        email: Contact email (unique in schema).
+    """
+
     id_fornecedor: int
     nome: str
     email: str
@@ -32,6 +50,15 @@ class Supplier:
 
 @dataclass(frozen=True)
 class Product:
+    """A product (produto) entity.
+
+    Attributes:
+        id_produto: Primary key.
+        nome: Product name.
+        preco_base: Base price (decimal, 2 places).
+        id_fornecedor: Foreign key to Supplier.
+    """
+
     id_produto: int
     nome: str
     preco_base: Decimal
@@ -40,6 +67,16 @@ class Product:
 
 @dataclass(frozen=True)
 class Client:
+    """A client (cliente) entity.
+
+    Attributes:
+        email: Primary key (email address).
+        nome: Full name.
+        rua: Street address.
+        localidade: City/locality.
+        codigo_postal: Postal code.
+    """
+
     email: str
     nome: str
     rua: str
@@ -49,6 +86,14 @@ class Client:
 
 @dataclass(frozen=True)
 class Order:
+    """An order (encomenda) header.
+
+    Attributes:
+        num_encomenda: Primary key (order number).
+        data: Order date.
+        email_cliente: Foreign key to Client.
+    """
+
     num_encomenda: str
     data: date
     email_cliente: str
@@ -56,25 +101,63 @@ class Order:
 
 @dataclass(frozen=True)
 class OrderLine:
+    """A line item in an order (detalhes_venda).
+
+    Attributes:
+        num_encomenda: Foreign key to Order.
+        id_produto: Foreign key to Product.
+        tamanho: Size (e.g. S, M, L or numeric).
+        quantidade: Quantity ordered.
+        preco_praticado: Applied unit price (may differ from product base price).
+    """
+
     num_encomenda: str
     id_produto: int
     tamanho: str
     quantidade: int
-    preco_praticado: Decimal  # applied unit price
+    preco_praticado: Decimal
 
 
 # -----------------------------
 # Helpers
 # -----------------------------
 def money(x: str) -> Decimal:
+    """Parse a string as a decimal and round to two decimal places (half-up).
+
+    Args:
+        x: String representation of a number (e.g. "19.99").
+
+    Returns:
+        Decimal rounded to 2 decimal places.
+    """
     return Decimal(x).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 def quant2(x: Decimal) -> Decimal:
+    """Round a decimal to two decimal places (half-up).
+
+    Args:
+        x: Value to round.
+
+    Returns:
+        Decimal rounded to 2 decimal places.
+    """
     return x.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 def chunked(seq: Sequence[tuple], size: int) -> Iterable[list[tuple]]:
+    """Yield successive fixed-size chunks of a sequence.
+
+    Args:
+        seq: Sequence of tuples (e.g. row data for executemany).
+        size: Maximum number of elements per chunk. Must be positive.
+
+    Yields:
+        Lists of up to ``size`` elements from ``seq``.
+
+    Raises:
+        ValueError: If ``size`` is less than or equal to zero.
+    """
     if size <= 0:
         raise ValueError("chunk size must be > 0")
     for i in range(0, len(seq), size):
@@ -82,7 +165,19 @@ def chunked(seq: Sequence[tuple], size: int) -> Iterable[list[tuple]]:
 
 
 def daterange_days(start: date, end_exclusive: date, rng: Random) -> date:
-    """Uniform random date in [start, end_exclusive)."""
+    """Return a uniformly random date in the half-open interval [start, end_exclusive).
+
+    Args:
+        start: Start of the range (inclusive).
+        end_exclusive: End of the range (exclusive).
+        rng: Random number generator for reproducibility.
+
+    Returns:
+        A date in [start, end_exclusive).
+
+    Raises:
+        ValueError: If end_exclusive <= start (empty or invalid range).
+    """
     delta = (end_exclusive - start).days
     if delta <= 0:
         raise ValueError("Invalid date range")
@@ -93,6 +188,15 @@ def daterange_days(start: date, end_exclusive: date, rng: Random) -> date:
 # Dataset builder
 # -----------------------------
 def build_static_entities() -> tuple[list[Supplier], list[Product], list[Client]]:
+    """Build the fixed set of suppliers, products, and clients for the shop seed.
+
+    Data is deterministic and designed to support specific query exercises
+    (e.g. products that are never sold, a supplier intentionally omitted).
+
+    Returns:
+        A tuple (suppliers, products, clients). Lengths: 3 suppliers, 23 products
+        (including 3 never-sold), 10 clients.
+    """
     # Adidas NOT included on purpose (query h)
     suppliers: list[Supplier] = [
         Supplier(1, "Nike", "sales@nike.pt"),
@@ -150,6 +254,18 @@ def build_static_entities() -> tuple[list[Supplier], list[Product], list[Client]
 
 
 def choose_size_for_product(pid: int, rng: Random) -> str:
+    """Choose a size string for a product based on its id.
+
+    Product-specific rules: numeric sizes for shoes, S/M/L/XL for apparel,
+    "U" for one-size items, and volume for liquids.
+
+    Args:
+        pid: Product id (e.g. 1–23 in the seed set).
+        rng: Random number generator (used for variety within allowed sizes).
+
+    Returns:
+        A size string (e.g. "42", "M", "U", "1L").
+    """
     if pid in {1}:
         return str(rng.choice([40, 41, 42, 43, 44, 45]))
     if pid in {2, 5, 6}:
@@ -162,6 +278,18 @@ def choose_size_for_product(pid: int, rng: Random) -> str:
 
 
 def compute_practiced_price(base: Decimal, rng: Random) -> Decimal:
+    """Compute a practiced (possibly discounted) unit price from the base price.
+
+    Applies no discount (70% chance), 5% off (25%), or 10% off (5%), then
+    rounds to two decimal places.
+
+    Args:
+        base: Base unit price.
+        rng: Random number generator.
+
+    Returns:
+        Decimal rounded to 2 decimal places.
+    """
     u = rng.random()
     if u < 0.70:
         factor = Decimal("1.00")
@@ -179,6 +307,27 @@ def build_orders_and_lines(
     clients: list[Client],
     total_orders: int,
 ) -> tuple[list[Order], list[OrderLine]]:
+    """Build orders and order line items with guaranteed cases plus random bulk.
+
+    Inserts fixed orders (e.g. Dec 2023, monthly 2025, one large order with
+    >10 distinct products) and fills the remainder with random orders and
+    lines. Products 21–22–23 are never sold (asserted).
+
+    Args:
+        rng: Random number generator (seed for reproducibility).
+        products: Full list of products (must include ids 1–23).
+        clients: List of clients to assign to orders.
+        total_orders: Total number of orders to generate. Must be at least 50
+            to accommodate the fixed guarantees.
+
+    Returns:
+        Tuple (orders, order_lines) with consistent references (order numbers,
+        product ids, client emails).
+
+    Raises:
+        ValueError: If total_orders < 50 or any invariant is violated.
+        AssertionError: If never-sold products appear in lines or guarantees fail.
+    """
     if total_orders < 50:
         raise ValueError("total_orders should be reasonably large (>=50)")
 
@@ -291,6 +440,22 @@ def build_orders_and_lines(
 # DB / Schema
 # -----------------------------
 def ddl_statements(database: str) -> list[str]:
+    """Return SQL statements to create the shop database and its tables.
+
+    Creates the database (if not exists) with utf8mb4, then tables in
+    dependency order: fornecedores, produtos, clientes, encomendas,
+    detalhes_venda, with foreign keys and indexes.
+
+    Args:
+        database: Database name (whitespace is stripped). Must be non-empty.
+
+    Returns:
+        List of SQL strings (CREATE DATABASE, USE, CREATE TABLE ...). Execute
+        in order.
+
+    Raises:
+        ValueError: If ``database`` is empty after stripping.
+    """
     db = database.strip()
     if not db:
         raise ValueError("database must be non-empty")
@@ -378,6 +543,20 @@ def ddl_statements(database: str) -> list[str]:
 
 
 def exec_many(cur, sql: str, rows: Sequence[tuple], batch: int) -> int:
+    """Execute a parameterized statement for all rows in batches.
+
+    Uses the cursor's executemany in chunks of ``batch`` rows to avoid
+    huge single round-trips.
+
+    Args:
+        cur: Database cursor (e.g. from MySQLConnection.cursor()).
+        sql: Parameterized SQL (e.g. "INSERT INTO t (a,b) VALUES (%s,%s)").
+        rows: Sequence of parameter tuples (one per row).
+        batch: Maximum rows per executemany call.
+
+    Returns:
+        Total number of rows executed (len(rows) when non-empty, else 0).
+    """
     if not rows:
         return 0
     total = 0
@@ -391,6 +570,14 @@ def exec_many(cur, sql: str, rows: Sequence[tuple], batch: int) -> int:
 # Main
 # -----------------------------
 def main() -> None:
+    """Entry point: load config, seed the shop database, and print insert counts.
+
+    Reads ``config.toml`` from the repository root, builds all entities and
+    orders, connects to MySQL, creates the database and tables if needed,
+    clears existing data, inserts seed data in batches, commits, and prints
+    the number of rows inserted per table. On any exception, the transaction
+    is rolled back and the connection closed.
+    """
     cfg = load_config(CONFIG_PATH)
     host = cfg.host
     port = cfg.port

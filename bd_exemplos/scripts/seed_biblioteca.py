@@ -1,7 +1,17 @@
-"""
-Library database seed (authors, books, readers, loans).
-Uses the database name defined in config.toml.
-Usage (after poetry install): python -m bd_exemplos.scripts.seed_biblioteca
+"""Library database seed script.
+
+Populates a MySQL database with deterministic and random data for the domain:
+authors (autores), books (livros), readers (leitores), and loans (emprestimos).
+The database name and connection settings are read from ``config.toml`` at
+the repository root.
+
+Usage:
+    From the repo root after ``poetry install``::
+
+        python -m bd_exemplos.scripts.seed_biblioteca
+
+    The script creates the database and tables if they do not exist, clears
+    existing data, then inserts the seed data and prints row counts.
 """
 from __future__ import annotations
 
@@ -23,6 +33,14 @@ CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config.toml"
 # -----------------------------
 @dataclass(frozen=True)
 class Autor:
+    """An author (autor) entity.
+
+    Attributes:
+        id_autor: Primary key.
+        nome: Author name.
+        pais: Country.
+    """
+
     id_autor: int
     nome: str
     pais: str
@@ -30,6 +48,16 @@ class Autor:
 
 @dataclass(frozen=True)
 class Livro:
+    """A book (livro) entity.
+
+    Attributes:
+        id_livro: Primary key.
+        titulo: Book title.
+        id_autor: Foreign key to Autor.
+        ano: Publication year.
+        isbn: ISBN (unique in schema).
+    """
+
     id_livro: int
     titulo: str
     id_autor: int
@@ -39,6 +67,15 @@ class Livro:
 
 @dataclass(frozen=True)
 class Leitor:
+    """A reader (leitor) entity.
+
+    Attributes:
+        id_leitor: Primary key.
+        nome: Full name.
+        email: Email address (unique in schema).
+        data_inscricao: Registration date.
+    """
+
     id_leitor: int
     nome: str
     email: str
@@ -47,6 +84,16 @@ class Leitor:
 
 @dataclass(frozen=True)
 class Emprestimo:
+    """A loan (emprestimo) entity.
+
+    Attributes:
+        id_emprestimo: Primary key.
+        id_livro: Foreign key to Livro.
+        id_leitor: Foreign key to Leitor.
+        data_emprestimo: Loan (checkout) date.
+        data_devolucao: Return date, or None if not yet returned.
+    """
+
     id_emprestimo: int
     id_livro: int
     id_leitor: int
@@ -58,6 +105,11 @@ class Emprestimo:
 # Static data
 # -----------------------------
 def build_autores() -> list[Autor]:
+    """Build the fixed set of authors for the library seed.
+
+    Returns:
+        A list of 5 authors (deterministic). Used to populate the ``autores`` table.
+    """
     return [
         Autor(1, "José Saramago", "Portugal"),
         Autor(2, "Fernando Pessoa", "Portugal"),
@@ -68,6 +120,12 @@ def build_autores() -> list[Autor]:
 
 
 def build_livros() -> list[Livro]:
+    """Build the fixed set of books for the library seed.
+
+    Returns:
+        A list of 10 books (deterministic), each linked to an author. Used to
+        populate the ``livros`` table.
+    """
     return [
         Livro(1, "Memorial do Convento", 1, 1982, "972-21-0123-4"),
         Livro(2, "Ensaio sobre a Cegueira", 1, 1995, "972-21-0124-2"),
@@ -83,6 +141,11 @@ def build_livros() -> list[Livro]:
 
 
 def build_leitores() -> list[Leitor]:
+    """Build the fixed set of readers for the library seed.
+
+    Returns:
+        A list of 5 readers (deterministic). Used to populate the ``leitores`` table.
+    """
     return [
         Leitor(1, "Maria Oliveira", "maria.oliveira@mail.pt", date(2022, 3, 10)),
         Leitor(2, "António Nunes", "antonio.nunes@mail.pt", date(2022, 5, 22)),
@@ -93,7 +156,18 @@ def build_leitores() -> list[Leitor]:
 
 
 def build_emprestimos(rng: Random) -> list[Emprestimo]:
-    """Build sample loans (some returned, some still out)."""
+    """Build sample loans: fixed past and current loans plus random entries.
+
+    Includes loans with and without a return date (data_devolucao). The
+    random portion uses the provided RNG for reproducibility.
+
+    Args:
+        rng: Random number generator (e.g. Random(42) for reproducible output).
+
+    Returns:
+        A list of Emprestimo instances (at least 10 fixed + 12 random). Used
+        to populate the ``emprestimos`` table.
+    """
     emprestimos: list[Emprestimo] = []
     pid = 1
     # Past loans (returned)
@@ -136,6 +210,22 @@ def build_emprestimos(rng: Random) -> list[Emprestimo]:
 # DDL
 # -----------------------------
 def ddl_biblioteca(database: str) -> list[str]:
+    """Return SQL statements to create the library database and its tables.
+
+    Creates the database (if not exists) with utf8mb4, then tables in
+    dependency order: autores, livros, leitores, emprestimos, with foreign
+    keys and indexes.
+
+    Args:
+        database: Database name (whitespace is stripped). Must be non-empty.
+
+    Returns:
+        List of SQL strings (CREATE DATABASE, USE, CREATE TABLE ...). Execute
+        in order.
+
+    Raises:
+        ValueError: If ``database`` is empty after stripping.
+    """
     db = database.strip()
     if not db:
         raise ValueError("database must be non-empty")
@@ -208,6 +298,14 @@ def ddl_biblioteca(database: str) -> list[str]:
 
 
 def main() -> None:
+    """Entry point: load config, seed the library database, and print insert counts.
+
+    Reads ``config.toml`` from the repository root, builds authors, books,
+    readers, and loans, connects to MySQL, creates the database and tables
+    if needed, clears existing data, inserts seed data, commits, and prints
+    the number of rows inserted per table. On any exception, the transaction
+    is rolled back and the connection closed.
+    """
     cfg = load_config(CONFIG_PATH)
     database = cfg.database
     rng = Random(42)
