@@ -1,0 +1,9 @@
+# Copiar para config.toml e preencher (sobretudo password).
+# O ficheiro config.toml não é versionado (está no .gitignore).
+
+[mysql]
+host = "127.0.0.1"
+port = 3306
+user = "root"
+password = ""
+database = "BD_TESTE"

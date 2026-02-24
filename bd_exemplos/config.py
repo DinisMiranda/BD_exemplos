@@ -23,6 +23,16 @@ def _require_str(d: Dict[str, Any], key: str) -> str:
     return v.strip()
 
 
+def _optional_str(d: Dict[str, Any], key: str, default: str = "") -> str:
+    """Returns string value for key, or default if missing/empty (e.g. password for local dev)."""
+    v = d.get(key)
+    if v is None:
+        return default
+    if not isinstance(v, str):
+        raise ValueError(f"Invalid '{key}' (expected string or missing).")
+    return v.strip() if v.strip() else default
+
+
 def _require_int(d: Dict[str, Any], key: str) -> int:
     v = d.get(key)
     if not isinstance(v, int) or v <= 0:
@@ -45,7 +55,7 @@ def load_config(path: Path) -> MySQLConfig:
     host = _require_str(mysql, "host")
     port = _require_int(mysql, "port")
     user = _require_str(mysql, "user")
-    password = _require_str(mysql, "password")
+    password = _optional_str(mysql, "password", default="")
     database = _require_str(mysql, "database")
 
     return MySQLConfig(host=host, port=port, user=user, password=password, database=database)

@@ -6,22 +6,33 @@ Bases de dados para teste (MySQL).
 
 ```
 BD_exemplos/
-├── config.toml          # Configuração MySQL (host, port, user, password, database)
-├── bd_exemplos/         # Código partilhado
-│   └── config.py        # Leitura da configuração
-├── scripts/             # Scripts de seed
-│   ├── seed_loja.py     # Loja: fornecedores, produtos, clientes, encomendas
+├── config.toml.example # Modelo de configuração (copiar para config.toml)
+├── bd_exemplos/        # Código partilhado
+│   └── config.py       # Leitura da configuração
+├── scripts/            # Scripts de seed
+│   ├── seed_loja.py    # Loja: fornecedores, produtos, clientes, encomendas
 │   └── seed_biblioteca.py  # Biblioteca: autores, livros, leitores, empréstimos
+├── requirements.txt
 ├── README.md
 └── LICENSE
 ```
 
 ## Configuração
 
-**Importante (em `config.toml`):**
+O ficheiro `config.toml` (com a password do MySQL) **não está no repositório** por segurança. Usa o modelo:
 
-- No campo `password` deve colocar a password do seu MySQL (ex.: MySQL Workbench).
-- Para importar uma base de dados diferente, altere o campo `database` em `config.toml`.
+1. **Copiar o exemplo** para criar o teu ficheiro de configuração:
+   ```bash
+   cp config.toml.example config.toml
+   ```
+2. **Editar `config.toml`** e preencher:
+   - `password` — password do MySQL (ex.: MySQL Workbench). Pode ficar vazia se o teu servidor local não usar password.
+   - `database` — nome da base de dados (podes usar, por exemplo, `BD_TESTE` ou `BD_TESTE2`).
+   - Opcionalmente ajustar `host`, `port`, `user`.
+</think>
+Verificando se o config carrega com password vazia:
+<｜tool▁calls▁begin｜><｜tool▁call▁begin｜>
+Shell
 
 ## Como executar
 
