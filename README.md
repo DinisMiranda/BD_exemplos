@@ -14,6 +14,9 @@ BD_exemplos/
 │   └── scripts/         # Scripts de seed (executar com python -m)
 │       ├── seed_loja.py      # Loja: fornecedores, produtos, clientes, encomendas
 │       └── seed_biblioteca.py # Biblioteca: autores, livros, leitores, empréstimos
+├── tests/              # Testes (pytest)
+│   ├── test_config.py  # load_config
+│   └── test_builders.py # build_static_entities, build_autores, etc.
 ├── requirements.txt
 ├── README.md
 └── LICENSE
@@ -63,6 +66,14 @@ Reinicia o terminal (ou faz `source ~/.zshrc`) para que o comando `poetry` fique
    ```
 
 Com `poetry install`, o Poetry cria o ambiente virtual e instala o pacote; não é preciso `PYTHONPATH`.
+
+## Testes
+
+Testes mínimos com pytest (config e builders de dados):
+
+```bash
+poetry run pytest tests/ -v
+```
 
 ## Dependências
 
