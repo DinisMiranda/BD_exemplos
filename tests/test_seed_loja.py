@@ -1,4 +1,5 @@
 """Tests for bd_exemplos.scripts.seed_loja helpers and DDL."""
+
 from __future__ import annotations
 
 from decimal import Decimal
@@ -6,7 +7,6 @@ from random import Random
 from unittest.mock import MagicMock
 
 import pytest
-
 from bd_exemplos.scripts.seed_loja import (
     build_orders_and_lines,
     build_static_entities,

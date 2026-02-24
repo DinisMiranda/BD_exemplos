@@ -4,6 +4,7 @@ This module provides a single function to open a MySQL connection with
 basic validation of host and port. Used by both the shop and library
 seed scripts to avoid code duplication.
 """
+
 from __future__ import annotations
 
 import mysql.connector

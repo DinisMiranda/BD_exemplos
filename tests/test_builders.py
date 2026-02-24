@@ -1,9 +1,8 @@
 """Tests for data builders (seed_loja and seed_biblioteca)."""
+
 from __future__ import annotations
 
 from random import Random
-
-import pytest
 
 from bd_exemplos.scripts.seed_biblioteca import (
     build_autores,
@@ -12,7 +11,6 @@ from bd_exemplos.scripts.seed_biblioteca import (
     build_livros,
 )
 from bd_exemplos.scripts.seed_loja import build_static_entities
-
 
 # --- Shop: build_static_entities ---
 

@@ -1,10 +1,10 @@
 """Tests for bd_exemplos.config.load_config."""
+
 from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
-
 from bd_exemplos.config import MySQLConfig, load_config
 
 

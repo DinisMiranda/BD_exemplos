@@ -22,11 +22,12 @@ Example:
         cfg = load_config(Path("config.toml"))
         # cfg.host, cfg.port, cfg.user, cfg.password, cfg.database
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import toml
 
@@ -50,7 +51,7 @@ class MySQLConfig:
     database: str
 
 
-def _require_str(d: Dict[str, Any], key: str) -> str:
+def _require_str(d: dict[str, Any], key: str) -> str:
     """Extract a required non-empty string from a dict.
 
     Args:
@@ -70,7 +71,7 @@ def _require_str(d: Dict[str, Any], key: str) -> str:
     return v.strip()
 
 
-def _optional_str(d: Dict[str, Any], key: str, default: str = "") -> str:
+def _optional_str(d: dict[str, Any], key: str, default: str = "") -> str:
     """Extract an optional string from a dict, with default for missing/empty.
 
     Used for optional fields such as password (empty string for no password).
@@ -94,7 +95,7 @@ def _optional_str(d: Dict[str, Any], key: str, default: str = "") -> str:
     return v.strip() if v.strip() else default
 
 
-def _require_int(d: Dict[str, Any], key: str) -> int:
+def _require_int(d: dict[str, Any], key: str) -> int:
     """Extract a required positive integer from a dict.
 
     Args:

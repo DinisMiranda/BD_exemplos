@@ -13,12 +13,12 @@ Usage:
     The script creates the database and tables if they do not exist, clears
     existing data, then inserts the seed data and prints row counts.
 """
-from __future__ import annotations
 
-from pathlib import Path
+from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, timedelta
+from pathlib import Path
 from random import Random
 
 from bd_exemplos.config import load_config
@@ -171,7 +171,7 @@ def build_emprestimos(rng: Random) -> list[Emprestimo]:
     emprestimos: list[Emprestimo] = []
     pid = 1
     # Past loans (returned)
-    for (id_livro, id_leitor, emp, dev) in [
+    for id_livro, id_leitor, emp, dev in [
         (1, 1, date(2024, 1, 5), date(2024, 1, 25)),
         (3, 2, date(2024, 2, 10), date(2024, 3, 10)),
         (6, 1, date(2024, 3, 1), date(2024, 3, 28)),
@@ -186,7 +186,7 @@ def build_emprestimos(rng: Random) -> list[Emprestimo]:
         emprestimos.append(Emprestimo(pid, id_livro, id_leitor, emp, dev))
         pid += 1
     # Current loans (no return date yet)
-    for (id_livro, id_leitor, emp) in [
+    for id_livro, id_leitor, emp in [
         (1, 3, date(2025, 1, 6)),
         (4, 5, date(2025, 1, 15)),
         (6, 2, date(2025, 2, 1)),
@@ -340,7 +340,10 @@ def main() -> None:
         )
         cur.executemany(
             f"INSERT INTO {database}.livros (ID_Livro, Titulo, ID_Autor, Ano, ISBN) VALUES (%s, %s, %s, %s, %s)",
-            [(l.id_livro, l.titulo, l.id_autor, l.ano, l.isbn) for l in livros],
+            [
+                (livro.id_livro, livro.titulo, livro.id_autor, livro.ano, livro.isbn)
+                for livro in livros
+            ],
         )
         cur.executemany(
             f"INSERT INTO {database}.leitores (ID_Leitor, Nome, Email, Data_Inscricao) VALUES (%s, %s, %s, %s)",
@@ -348,7 +351,10 @@ def main() -> None:
         )
         cur.executemany(
             f"INSERT INTO {database}.emprestimos (ID_Emprestimo, ID_Livro, ID_Leitor, Data_Emprestimo, Data_Devolucao) VALUES (%s, %s, %s, %s, %s)",
-            [(e.id_emprestimo, e.id_livro, e.id_leitor, e.data_emprestimo, e.data_devolucao) for e in emprestimos],
+            [
+                (e.id_emprestimo, e.id_livro, e.id_leitor, e.data_emprestimo, e.data_devolucao)
+                for e in emprestimos
+            ],
         )
 
         conn.commit()

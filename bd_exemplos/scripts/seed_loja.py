@@ -13,15 +13,15 @@ Usage:
     The script creates the database and tables if they do not exist, clears
     existing data, then inserts the seed data and prints row counts.
 """
+
 from __future__ import annotations
 
-from pathlib import Path
-
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
+from pathlib import Path
 from random import Random
-from typing import Iterable, Sequence
 
 from bd_exemplos.config import load_config
 from bd_exemplos.db import connect_mysql
@@ -206,18 +206,16 @@ def build_static_entities() -> tuple[list[Supplier], list[Product], list[Client]
 
     products: list[Product] = [
         # Nike
-        Product(1, "Nike Air Max Pro", money("600.00"), 1),   # critical for query c
+        Product(1, "Nike Air Max Pro", money("600.00"), 1),  # critical for query c
         Product(2, "Nike Running Jacket", money("550.00"), 1),
         Product(3, "Nike Socks Pack", money("19.99"), 1),
         Product(4, "Nike Smartwatch", money("799.00"), 1),
         Product(5, "Nike Cap", money("24.99"), 1),
         Product(6, "Nike Training Bag", money("45.00"), 1),
-
         # LuxuryCo
         Product(7, "Luxury Watch X", money("1200.00"), 2),
         Product(8, "Luxury Handbag", money("950.00"), 2),
         Product(9, "Luxury Sunglasses", money("320.00"), 2),
-
         # Casa do Norte
         Product(10, "Queijo Curado", money("8.50"), 3),
         Product(11, "Azeite Virgem", money("9.70"), 3),
@@ -230,7 +228,6 @@ def build_static_entities() -> tuple[list[Supplier], list[Product], list[Client]
         Product(18, "Café Moído", money("4.90"), 3),
         Product(19, "Granola Artesanal", money("6.40"), 3),
         Product(20, "Chocolate Negro", money("2.90"), 3),
-
         # NEVER SOLD products (critical for query e)
         Product(21, "Nike Limited Edition Sneakers", money("1500.00"), 1),
         Product(22, "Luxury Perfume", money("180.00"), 2),
@@ -247,7 +244,9 @@ def build_static_entities() -> tuple[list[Supplier], list[Product], list[Client]
         Client("sofia.rocha@email.pt", "Sofia Rocha", "Av. do Mar 9", "Faro", "8000-060"),
         Client("carla.mendes@email.pt", "Carla Mendes", "Rua da Ponte 1", "Viseu", "3500-070"),
         Client("pedro.lima@email.pt", "Pedro Lima", "Rua do Pinhal 77", "Leiria", "2400-080"),
-        Client("beatriz.sousa@email.pt", "Beatriz Sousa", "Rua do Mercado 5", "Setúbal", "2900-090"),
+        Client(
+            "beatriz.sousa@email.pt", "Beatriz Sousa", "Rua do Mercado 5", "Setúbal", "2900-090"
+        ),
     ]
 
     return suppliers, products, clients
@@ -421,10 +420,10 @@ def build_orders_and_lines(
             add_line(num, pid, rng.randint(1, 4))
 
     # sanity checks
-    used_pids = {l.id_produto for l in lines}
+    used_pids = {line.id_produto for line in lines}
     if used_pids & never_sold_ids:
         raise AssertionError("Never-sold products ended up being sold.")
-    big_count = len({l.id_produto for l in lines if l.num_encomenda == big_num})
+    big_count = len({line.id_produto for line in lines if line.num_encomenda == big_num})
     if big_count <= 10:
         raise AssertionError("Big order does not have >10 different items.")
     if not any(o.data == date(2023, 12, 1) for o in orders):
@@ -642,7 +641,16 @@ def main() -> None:
         n_lines = exec_many(
             cur,
             f"INSERT INTO {database}.detalhes_venda (Num_Encomenda, ID_Produto, Tamanho, Quantidade, Preco_Praticado) VALUES (%s, %s, %s, %s, %s)",
-            [(l.num_encomenda, l.id_produto, l.tamanho, l.quantidade, str(l.preco_praticado)) for l in lines],
+            [
+                (
+                    row.num_encomenda,
+                    row.id_produto,
+                    row.tamanho,
+                    row.quantidade,
+                    str(row.preco_praticado),
+                )
+                for row in lines
+            ],
             batch=batch_size,
         )
 

@@ -1,10 +1,10 @@
 """Tests for bd_exemplos.db.connect_mysql."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from bd_exemplos.db import connect_mysql
 
 
@@ -14,9 +14,7 @@ def test_connect_mysql_success_returns_connection() -> None:
     with patch("bd_exemplos.db.mysql.connector.connect", return_value=fake_conn) as mock_connect:
         conn = connect_mysql(host="localhost", port=3306, user="u", password="p")
     assert conn is fake_conn
-    mock_connect.assert_called_once_with(
-        host="localhost", port=3306, user="u", password="p"
-    )
+    mock_connect.assert_called_once_with(host="localhost", port=3306, user="u", password="p")
 
 
 def test_connect_mysql_empty_host_raises() -> None:

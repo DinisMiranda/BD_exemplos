@@ -1,8 +1,8 @@
 """Tests for bd_exemplos.scripts.seed_biblioteca DDL and data."""
+
 from __future__ import annotations
 
 import pytest
-
 from bd_exemplos.scripts.seed_biblioteca import ddl_biblioteca
 
 
