@@ -1,11 +1,11 @@
 # BD_exemplos
 
-[![CI](https://github.com/REPO_OWNER/BD_exemplos/actions/workflows/tests.yml/badge.svg)](https://github.com/REPO_OWNER/BD_exemplos/actions/workflows/tests.yml)
-[![codecov](https://codecov.io/gh/REPO_OWNER/BD_exemplos/graph/badge.svg)](https://codecov.io/gh/REPO_OWNER/BD_exemplos)
+[![CI](https://github.com/DinisMiranda/BD_exemplos/actions/workflows/tests.yml/badge.svg)](https://github.com/DinisMiranda/BD_exemplos/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/DinisMiranda/BD_exemplos/graph/badge.svg)](https://codecov.io/gh/DinisMiranda/BD_exemplos)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
-Sample databases for testing (MySQL). Replace `REPO_OWNER` in the badges with your GitHub org or username.
+Sample databases for testing (MySQL). Replace `DinisMiranda` in the badges with your GitHub org or username.
 
 ## Repository structure
 
