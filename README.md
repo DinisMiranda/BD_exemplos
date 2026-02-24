@@ -18,7 +18,9 @@ BD_exemplos/
 │   ├── db.py             # Shared MySQL connection
 │   └── scripts/          # Seed scripts (run with python -m)
 │       ├── seed_loja.py       # Shop: suppliers, products, clients, orders
-│       └── seed_biblioteca.py # Library: authors, books, readers, loans
+│       ├── seed_biblioteca.py # Library: authors, books, readers, loans
+│       ├── seed_cinema.py     # Cinema: films, rooms, sessions, tickets
+│       └── seed_clinica.py    # Clinic: doctors, patients, appointments
 ├── tests/                # Tests (pytest)
 │   ├── test_config.py    # load_config
 │   └── test_builders.py  # build_static_entities, build_autores, etc.
@@ -59,11 +61,17 @@ Restart your terminal (or run `source ~/.zshrc`) so the `poetry` command is avai
 2. **Run the seeds** (`config.toml` must be in the repo root):
 
    ```bash
-   # Shop seed (uses database from config.toml)
+   # Shop (suppliers, products, clients, orders)
    poetry run python -m bd_exemplos.scripts.seed_loja
 
-   # Library seed
+   # Library (authors, books, readers, loans)
    poetry run python -m bd_exemplos.scripts.seed_biblioteca
+
+   # Cinema (films, rooms, sessions, tickets)
+   poetry run python -m bd_exemplos.scripts.seed_cinema
+
+   # Clinic (doctors, patients, appointments)
+   poetry run python -m bd_exemplos.scripts.seed_clinica
    ```
 
 With `poetry install`, Poetry creates the virtual environment and installs the package; no need for `PYTHONPATH`.
