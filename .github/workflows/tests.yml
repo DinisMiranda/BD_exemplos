@@ -1,5 +1,5 @@
-# CI: run tests on push and pull_request
-name: CI
+# Run unit tests on push and pull requests
+name: Unit tests
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
     branches: [main, master]
 
 jobs:
-  test:
-    name: Test (Python ${{ matrix.python-version }})
+  unit-tests:
+    name: pytest (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -41,5 +41,5 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
 
-      - name: Run tests
+      - name: Run unit tests
         run: poetry run pytest tests/ -v --tb=short
